@@ -19,8 +19,8 @@
     "youtube-dl": "^3.0.1",
     "zlib-sync": "^0.1.6"
   },
-  "name": "vixen",
-  "version": "1.0.0",
+  "name": "vixenbot",
+  "version": "0.0.0",
   "description": "A multipurpose Discord bot built with Discord.js",
   "main": "index.js",
   "repository": "https://gitlab.com/Codazed/vixen.git",
