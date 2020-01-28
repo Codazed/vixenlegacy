@@ -4,8 +4,9 @@
     "bufferutil": "^4.0.1",
     "cacache": "^13.0.1",
     "chalk": "^3.0.0",
+    "death": "^1.1.0",
     "discord.js": "discordjs/discord.js",
-    "discord.js-commando": "^0.10.0",
+    "discord.js-commando": "discordjs/discord.js-commando",
     "erlpack": "discordapp/erlpack",
     "ffmpeg-static": "^3.0.0",
     "inquirer": "^7.0.4",
@@ -16,6 +17,7 @@
     "prism-media": "^1.2.0",
     "sodium": "^3.0.2",
     "utf-8-validate": "^5.0.2",
+    "yargs": "^15.1.0",
     "youtube-dl": "^3.0.1",
     "zlib-sync": "^0.1.6"
   },
