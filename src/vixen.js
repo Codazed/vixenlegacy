@@ -35,8 +35,8 @@ class Vixen {
                     });
 
                     bot.on('message', (msg) => {
-                        if (msg.content.includes(bot.user.username)) {
-                            msg.channel.send("Ready!");
+                        if (msg.mentions.users.has(bot.user.id)) {
+                            msg.react(require('random-item')(['😄', '🤗', '😊', '🙃']));
                         }
                     })
                 });
