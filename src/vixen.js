@@ -1,3 +1,4 @@
+const path = require('path');
 const Commando = require('discord.js-commando');
 const ora = require('ora');
 const botLoadingSpinner = ora('Starting bot');
@@ -25,8 +26,15 @@ class Vixen {
                 vixen.db.get('bot.owner', function (err, value) {
                     vixen.config.owner = value;
                     bot = new Commando.Client({
-                        owner: vixen.config.owner
+                        owner: vixen.config.owner,
+                        commandPrefix: vixen.config.prefix
                     });
+                    bot.registry.registerGroups([
+                        ['music', 'Music commands'],
+                        ['moderation', 'Moderation commands']
+                    ])
+                        .registerDefaults()
+                        .registerCommandsIn(path.join(__dirname, 'commands'));
                     bot.login(vixen.config.token);
 
                     bot.on('ready', () => {
