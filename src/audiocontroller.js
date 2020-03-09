@@ -7,6 +7,11 @@ class AudioController {
         cleanGuildData();
     }
 
+    queue(guildId, audioJSON) {
+        let guildData = getCurrentGuildData(guildId);
+        guildData.playQueue.push(audioJSON);
+    }
+
     play(guildId, audioJSON) {
         let guildData = getCurrentGuildData(guildId);
         if (guildData.nowPlaying !== undefined) {
