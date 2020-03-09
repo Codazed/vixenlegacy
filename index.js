@@ -21,6 +21,10 @@ if (!fs.existsSync("./cache")) {
     fs.mkdirSync("./cache");
 }
 
+if (!fs.existsSync("./data")) {
+    fs.mkdirSync("./data");
+}
+
 function runSetup() {
     console.log("Performing first-time setup...");
     let questions = [
