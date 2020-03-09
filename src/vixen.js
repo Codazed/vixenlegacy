@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const Commando = require('discord.js-commando');
 const ora = require('ora');
@@ -41,6 +42,9 @@ class Vixen {
                 botLoadingSpinner.stop();
                 vixen.log('Logged in', 'info');
                 bot.guilds.cache.forEach(function (guild) {
+                    if (!fs.existsSync(`./data/${guild.id}`)) {
+                        fs.mkdirSync(`./data/${guild.id}`);
+                    }
                     vixen.db.get(`${guild.id}.loadingEmoji`, function (err, value) {
                         if (err) console.log(err);
                         if (guild.emojis.cache.get(value) === undefined) {
