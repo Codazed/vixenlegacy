@@ -423,7 +423,7 @@ commander@~2.8.1:
   dependencies:
     graceful-readlink ">= 1.0.0"
 
-common-tags@^1.0.0, common-tags@^1.8.0:
+common-tags@^1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/common-tags/-/common-tags-1.8.0.tgz#8e3153e542d4a39e9b10554434afaaf98956a937"
   integrity sha512-6P6g0uetGpW/sdyUy/iQQCbFF0kWVMSIVSyYz7Zgjcgh8mgw8PQzDNZeyZ5DQ2gM7LBoZPHmnjz8rUthkBG5tw==
@@ -622,14 +622,12 @@ detect-libc@^1.0.2:
   resolved "https://registry.yarnpkg.com/detect-libc/-/detect-libc-1.0.3.tgz#fa137c4bd698edf55cd5cd02ac559f91a4c4ba9b"
   integrity sha1-+hN8S9aY7fVc1c0CrFWfkaTEups=
 
-discord.js-commando@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/discord.js-commando/-/discord.js-commando-0.10.0.tgz#bfa98bf3310870376f3c7a0d7b736a6a3e5d0a0f"
-  integrity sha1-v6mL8zEIcDdvPHoNe3Nqaj5dCg8=
+discord.js-commando@discordjs/discord.js-commando:
+  version "0.11.0-dev"
+  resolved "https://codeload.github.com/discordjs/discord.js-commando/tar.gz/bdbd84e2a978322f3af12c21e729eb7b7cd4a3dc"
   dependencies:
-    common-tags "^1.0.0"
-    escape-string-regexp "^1.0.0"
-    require-all "^2.0.0"
+    common-tags "^1.8.0"
+    require-all "^3.0.0"
 
 discord.js@^12.0.1:
   version "12.0.1"
@@ -712,7 +710,7 @@ errno@~0.1.1:
   dependencies:
     prr "~1.0.1"
 
-escape-string-regexp@^1.0.0, escape-string-regexp@^1.0.2, escape-string-regexp@^1.0.5:
+escape-string-regexp@^1.0.2, escape-string-regexp@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
@@ -975,6 +973,11 @@ get-proxy@^2.0.0:
   dependencies:
     npm-conf "^1.1.0"
 
+get-src@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/get-src/-/get-src-1.0.1.tgz#ca11dbe4a93c7f3aa85cec95fcb0b2dfaa9539ee"
+  integrity sha1-yhHb5Kk8fzqoXOyV/LCy36qVOe4=
+
 get-stream@3.0.0, get-stream@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/get-stream/-/get-stream-3.0.0.tgz#8e943d1358dc37555054ecbe2edb05aa174ede14"
@@ -994,6 +997,13 @@ get-stream@^5.0.0:
   integrity sha512-EXr1FOzrzTfGeL0gQdeFEvOMm2mzMOglyiOXSTpPC+iAjAKftbr3jpCMWynogwYnM+eSj9sHGc6wjIcDvYiygw==
   dependencies:
     pump "^3.0.0"
+
+get-video-id@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/get-video-id/-/get-video-id-3.1.4.tgz#9bffb8b607aa0379f0f8a927eae7df13b5e414a3"
+  integrity sha512-XOZ60NZ60ozTtoWtPPpA3TC9JgDXgcd5nTfYwjBhZWAx3w48HRq6EqKp2bUJ/3F+BWgiMMHg4IkQ+acO6LxfMQ==
+  dependencies:
+    get-src "^1.0.1"
 
 getpass@^0.1.1:
   version "0.1.7"
@@ -1335,6 +1345,13 @@ keyv@3.0.0:
   integrity sha512-eguHnq22OE3uVoSYG0LVWNP+4ppamWr9+zWBe1bsNcovIMy6huUJFPgy4mGwCd/rnl3vOLGW1MTlu4c57CT1xA==
   dependencies:
     json-buffer "3.0.0"
+
+knuth-shuffle-seeded@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/knuth-shuffle-seeded/-/knuth-shuffle-seeded-1.0.6.tgz#01f1b65733aa7540ee08d8b0174164d22081e4e1"
+  integrity sha1-AfG2VzOqdUDuCNiwF0Fk0iCB5OE=
+  dependencies:
+    seed-random "~2.2.0"
 
 level-codec@^9.0.0:
   version "9.0.1"
@@ -2060,10 +2077,10 @@ request@~2.88.0:
     tunnel-agent "^0.6.0"
     uuid "^3.3.2"
 
-require-all@^2.0.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/require-all/-/require-all-2.2.0.tgz#b4420c233ac0282d0ff49b277fb880a8b5de0894"
-  integrity sha1-tEIMIzrAKC0P9Jsnf7iAqLXeCJQ=
+require-all@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/require-all/-/require-all-3.0.0.tgz#473d49704be310115ce124f77383b1ebd8671312"
+  integrity sha1-Rz1JcEvjEBFc4ST3c4Ox69hnExI=
 
 require-directory@^2.1.1:
   version "2.1.1"
@@ -2137,6 +2154,11 @@ sax@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
+
+seed-random@~2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/seed-random/-/seed-random-2.2.0.tgz#2a9b19e250a817099231a5b99a4daf80b7fbed54"
+  integrity sha1-KpsZ4lCoFwmSMaW5mk2vgLf77VQ=
 
 seek-bzip@^1.0.5:
   version "1.0.5"
@@ -2648,6 +2670,11 @@ youtube-dl@^3.0.1:
     request "~2.88.0"
     streamify "~0.2.9"
     universalify "~0.1.2"
+
+youtube-regex@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/youtube-regex/-/youtube-regex-1.0.5.tgz#5f27facab0b7d66d01eebc7afc9a6a69cf61abd8"
+  integrity sha1-Xyf6yrC31m0B7rx6/Jpqac9hq9g=
 
 zero-fill@^2.2.3:
   version "2.2.3"
