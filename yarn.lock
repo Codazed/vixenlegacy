@@ -629,13 +629,6 @@ discord.js-commando@discordjs/Commando:
     common-tags "^1.8.0"
     require-all "^3.0.0"
 
-discord.js-commando@discordjs/discord.js-commando:
-  version "0.11.0-dev"
-  resolved "https://codeload.github.com/discordjs/discord.js-commando/tar.gz/bdbd84e2a978322f3af12c21e729eb7b7cd4a3dc"
-  dependencies:
-    common-tags "^1.8.0"
-    require-all "^3.0.0"
-
 discord.js@^12.0.1:
   version "12.0.1"
   resolved "https://registry.yarnpkg.com/discord.js/-/discord.js-12.0.1.tgz#58574c0c9acc598095f943d6b14da4725d37b8b9"
