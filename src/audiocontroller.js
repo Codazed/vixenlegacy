@@ -1,5 +1,13 @@
+const youtubedl = require('youtube-dl');
+const ora = require('ora');
+
 let client;
 let guildsMap = new Map();
+
+const config = {
+    maxDuration: 900
+};
+
 class AudioController {
     constructor(vixen, bot) {
         this.vixen = vixen;
@@ -7,9 +15,45 @@ class AudioController {
         cleanGuildData();
     }
 
+    getQueueDuration(guildId) {
+        return getQueueDuration(guildId);
+    }
+
+    getTimeTilNext(guildId) {
+        return getTimeTilNext(guildId)
+    }
+
+    getMaxDuration() {
+        return config.maxDuration;
+    }
+
+    getQueue(guildId) {
+        return getCurrentGuildData(guildId).playQueue;
+    }
+
     queue(guildId, audioJSON) {
         let guildData = getCurrentGuildData(guildId);
         guildData.playQueue.push(audioJSON);
+    }
+
+    checkQueue(guildId, queue=getCurrentGuildData(guildId).playQueue.slice()) {
+        let data = queue.shift();
+        if (!existsInCache(data)) {
+            download(data, (err) => {
+                if (err) {
+                    this.vixen.log(`Error downloading ${data.title}: Video is longer than the max duration of ${config.maxDuration} seconds. Skipping.`, 'err');
+                    let index = getCurrentGuildData(guildId).playQueue.indexOf(data);
+                    getCurrentGuildData(guildId).playQueue.splice(index, 1);
+                }
+                if (queue.length > 0) {
+                    this.checkQueue(guildId, queue);
+                }
+            });
+        } else {
+            if (queue.length > 0) {
+                this.checkQueue(guildId, queue);
+            }
+        }
     }
 
     play(guildId, audioJSON) {
@@ -84,6 +128,50 @@ class AudioController {
         guildData.loopEnabled = !guildData.loopEnabled;
         return guildData.loopEnabled;
     }
+
+    getVideoInfo(query, callback) {
+        const getInfoSpinner = ora(`Fetching info for query '${query}'...`).start();
+        youtubedl.exec(query, ['--default-search', 'ytsearch', '--match-filter', `duration <= ${config.maxDuration}`, '--dump-json', '--skip-download'], {}, function(err, output) {
+            if (err) throw err;
+            if (output.join('\n').length > 0) {
+                let videoJSON = JSON.parse(output);
+                let passData = {
+                    'query': query,
+                    'title': videoJSON.title,
+                    'uploader': videoJSON.uploader,
+                    'url': videoJSON.webpage_url,
+                    'id': videoJSON.id,
+                    'thumbnail': videoJSON.thumbnails[0].url,
+                    'duration': videoJSON.duration,
+                    'source': videoJSON.extractor
+                };
+                callback(false, passData);
+            } else {
+                callback(true);
+
+            }
+            getInfoSpinner.stop();
+        });
+    }
+}
+
+function existsInCache(audioJSON) {
+    const fs = require('fs');
+    return fs.existsSync(`./cache/${audioJSON.id}.ogg`);
+}
+
+function download(data, callback) {
+    if (data.duration > config.maxDuration) {
+        callback(true);
+    } else {
+        const downloadVideoSpinner = require('ora')(`Downloading '${data.title}'`).start();
+        const youtubedl = require('youtube-dl');
+        youtubedl.exec(data.url, ['--format', 'bestaudio', '-x', '--audio-format', 'vorbis', '--audio-quality', '64K', '-o', './cache/%(id)s.unprocessed'], {}, function(err, output) {
+            if (err) throw err;
+            downloadVideoSpinner.stop();
+            callback();
+        });
+    }
 }
 
 function getCurrentGuildData(guildId) {
@@ -107,7 +195,15 @@ function cleanGuildData(guild) {
     }
 }
 
-function getQueueDuration(guildData) {
+function getTimeTilNext(guildId) {
+    let guildData = getCurrentGuildData(guildId)
+    let now = Date.now();
+    let elapsed = now - guildData.startTime;
+    return guildData.nowPlaying.duration * 1000 - elapsed;
+}
+
+function getQueueDuration(guildId) {
+    let guildData = getCurrentGuildData(guildId);
     let queueTil = guildData.playQueue.slice();
     queueTil.pop();
     let now = Date.now();
@@ -137,7 +233,7 @@ function sendQueueEmbed(data) {
     embed.addField('Video', data.title);
     embed.addField('Uploader', data.uploader, true);
     embed.addField('Duration', require('format-duration')(data.duration * 1000), true);
-    embed.addField('ETA', `${require('format-duration')(getQueueDuration(guildsMap.get(data.requester.guild.id)))}`, true);
+    embed.addField('ETA', `${require('format-duration')(getQueueDuration(data.requester.guild.id))}`, true);
     embed.setURL(data.url);
     data.responsechnl.send(embed);
 }
