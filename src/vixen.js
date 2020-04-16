@@ -18,6 +18,10 @@ class Vixen {
         this.loadingEmojis = new Map();
     }
 
+    getAudioController() {
+        return this.audioController;
+    }
+
     start() {
         let vixen = this;
         botLoadingSpinner.start();
