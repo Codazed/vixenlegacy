@@ -29,7 +29,8 @@ class Vixen {
 
             bot.registry.registerGroups([
                 ['music', 'Music commands'],
-                ['moderation', 'Moderation commands']
+                ['moderation', 'Moderation commands'],
+                ['admin', 'Bot administration commands']
             ])
                 .registerDefaults()
                 .registerCommandsIn(path.join(__dirname, 'commands'));
