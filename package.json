@@ -26,6 +26,7 @@
     "prism-media": "^1.2.0",
     "progress": "^2.0.3",
     "random-item": "^3.0.0",
+    "table": "^5.4.6",
     "utf-8-validate": "^5.0.2",
     "yargs": "^15.1.0",
     "youtube-dl": "^3.0.1",
