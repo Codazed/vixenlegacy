@@ -4,11 +4,13 @@ const ora = require('ora');
 const oneLine = require('common-tags').oneLine;
 const youtubedl = require('youtube-dl');
 let botclient;
+let vixen;
+let controller;
 let playingBar;
 let nowPlaying;
 let nowPlayingElapsed = 0;
 module.exports = class PlayCommand extends commando.Command {
-    constructor(client, vixen) {
+    constructor(client) {
         super(client, {
             name: 'play',
             aliases: ['play'],
@@ -18,21 +20,14 @@ module.exports = class PlayCommand extends commando.Command {
             details: oneLine`
                 Play music from YouTube.             
             `,
-            examples: ['play https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'play alan walker faded'],
-            args: [
-                {
-                    key: 'query',
-                    prompt: 'Enter YouTube link or search query.',
-                    type: 'string'
-
-                }
-            ]
+            examples: ['play https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'play alan walker faded']
         });
         botclient = client;
-        this.vixen = vixen;
     }
 
     async run(msg, args) {
+        controller = botclient.vixen.audioController;
+        vixen = botclient.vixen;
         if (msg.attachments.size > 0) {
             let attachment = msg.attachments.first();
             if (attachment.name.endsWith('.mp3') || attachment.name.endsWith('.wav') || attachment.name.endsWith('.ogg')) {
@@ -60,48 +55,33 @@ module.exports = class PlayCommand extends commando.Command {
             }
         } else {
             let loadMsg;
-            msg.channel.send(`${botclient.vixen.loadingEmojis.get(msg.guild.id)} Fetching info for query '${args.query}'`).then(msg => {
+            msg.channel.send(`${vixen.loadingEmojis.get(msg.guild.id)} Fetching info for query \`${args}\``).then(msg => {
                 loadMsg = msg;
             });
-            getVideoInfo(args.query, function(data) {
-                let newData = data;
-                newData.vc = msg.member.voice.channel;
-                newData.responsechnl = msg.channel;
-                newData.requester = msg.member;
-                loadMsg.edit(`${botclient.vixen.loadingEmojis.get(msg.guild.id)} Downloading '${newData.title}'`);
-                if (fs.existsSync(`./cache/${newData.id}.ogg`)) {
+            controller.getVideoInfo(args, function(err, data) {
+                if (err) {
                     loadMsg.delete();
-                    playVideo(newData);
+                    msg.channel.send(`Error: No videos found for \`${args}\` that are within the set duration limit of ${controller.getMaxDuration()} seconds. Please try another query.`);
                 } else {
-                    downloadVideo(newData, function(data) {
+                    let newData = data;
+                    newData.vc = msg.member.voice.channel;
+                    newData.responsechnl = msg.channel;
+                    newData.requester = msg.member;
+                    loadMsg.edit(`${vixen.loadingEmojis.get(msg.guild.id)} Downloading '${newData.title}'`);
+                    if (fs.existsSync(`./cache/${newData.id}.ogg`)) {
                         loadMsg.delete();
                         playVideo(newData);
-                    });
+                    } else {
+                        downloadVideo(newData, function(data) {
+                            loadMsg.delete();
+                            playVideo(newData);
+                        });
+                    }
                 }
             });
         }
     }
 };
-
-function getVideoInfo(query, callback) {
-    const getInfoSpinner = ora(`Fetching info for query '${query}'...`).start();
-    youtubedl.exec(query, ['--default-search', 'ytsearch', '--dump-json', '--skip-download'], {}, function(err, output) {
-        if (err) throw err;
-        let videoJSON = JSON.parse(output);
-        let passData = {
-            'query': query,
-            'title': videoJSON.title,
-            'uploader': videoJSON.uploader,
-            'url': videoJSON.webpage_url,
-            'id': videoJSON.id,
-            'thumbnail': videoJSON.thumbnails[0].url,
-            'duration': videoJSON.duration,
-            'source': videoJSON.extractor
-        };
-        getInfoSpinner.stop();
-        callback(passData);
-    });
-}
 
 function downloadVideo(data, callback) {
     const downloadVideoSpinner = ora(`Downloading '${data.title}'`).start();
@@ -113,7 +93,7 @@ function downloadVideo(data, callback) {
 }
 
 function playVideo(data) {
-    botclient.vixen.audioController.play(data.requester.guild.id, data);
+    controller.play(data.requester.guild.id, data);
     /*if (botclient.audioPlaying) {
         function queue() {
             botclient.playQueue.push(data);
@@ -156,7 +136,7 @@ function playVideo(data) {
 }
 
 function getQueueDuration() {
-    let queueTil = botclient.playQueue.slice();
+    let queueTil = controller.playQueue.slice();
     queueTil.pop();
     let totalDuration = nowPlaying.duration;
     queueTil.forEach(video => {
