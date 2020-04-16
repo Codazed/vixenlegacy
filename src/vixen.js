@@ -64,7 +64,7 @@ class Vixen {
 
             bot.on('message', (msg) => {
                 if (msg.mentions.users.has(bot.user.id)) {
-                    msg.react(require('random-item')(['😄', '🤗', '😊', '🙃']));
+                    msg.react(require('random-item')(['😄', '🤗', '😊', '🙃', '🦊']));
                 }
             });
 
