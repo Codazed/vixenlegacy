@@ -223,6 +223,7 @@ function queuePlaylist(msg, playlist, shuffle) {
             newData.requester = msg.member;
             botclient.vixen.audioController.queue(msg.guild.id, item);
         });
+        botclient.vixen.audioController.checkQueue(msg.guild.id);
     }
     if (fs.existsSync(`./cache/${first.id}.ogg`)) {
         botclient.vixen.audioController.play(newData.requester.guild.id, newData);
