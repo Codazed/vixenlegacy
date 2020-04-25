@@ -4,6 +4,7 @@ const Commando = require('discord.js-commando');
 const ora = require('ora');
 const AudioController = require('./audiocontroller');
 const botLoadingSpinner = ora('Starting bot');
+const moment = require('moment');
 let bot;
 
 class Vixen {
@@ -51,6 +52,7 @@ class Vixen {
                     fs.mkdirSync(`./data/${guild.id}`);
                 }
                 try {
+                    vixen.db.prepare(`create table muted (id text, name text, guild text, guildName text, muteTimeStart text, muteTimeEnd text)`).run();
                     vixen.db.prepare(`create table '${guild.id}' (id text, value text)`).run();
                 } catch (err){}
                 let guildInfo = vixen.db.prepare('select * from guilds where uid=?').get(guild.id);
@@ -73,6 +75,21 @@ class Vixen {
             });
         });
 
+        bot.on('channelCreate', channel => {
+            if (channel.type !== "dm") {
+                let query = vixen.db.prepare(`select * from '${channel.guild.id}' where id=?`).get('muteRole');
+                if (query) {
+                    let muteRole = query.value;
+                    channel.updateOverwrite(muteRole, {
+                        ADD_REACTIONS: false,
+                        SEND_MESSAGES: false,
+                        CONNECT: false,
+                        SPEAK: false
+                    });
+                }
+            }
+        })
+
         bot.on('message', (msg) => {
             if (msg.mentions.users.has(bot.user.id)) {
                 msg.react(require('random-item')(['😄', '🤗', '😊', '🙃', '🦊']));
@@ -81,7 +98,19 @@ class Vixen {
 
         bot.on('commandError', (command, error) => {
             console.log(error);
-        })
+        });
+
+        bot.setInterval(() => {
+            let muted = vixen.db.prepare(`select * from muted`).all();
+            muted.forEach(person => {
+                if (moment.unix(person.muteTimeEnd).isBefore(moment())) {
+                    let guild = bot.guilds.resolve(person.guild);
+                    let muteRole = vixen.db.prepare(`select * from '${guild.id}' where id='muteRole'`).get().value;
+                    guild.member(person.id).roles.remove(muteRole, 'User mute time expired.');
+                    vixen.db.prepare(`delete from muted where id=? and guild=?`).run(person.id, guild.id);
+                }
+            })
+        }, 5000);
 
         // Graceful exit
         let death = require('death');
