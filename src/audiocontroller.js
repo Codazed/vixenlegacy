@@ -120,6 +120,7 @@ class AudioController {
 
     stop(guildId) {
         let guildData = getCurrentGuildData(guildId);
+        guildData.loopEnabled = false;
         guildData.playQueue = [];
         guildData.audioPlayer.end();
         cleanGuildData(guildId);
