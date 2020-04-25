@@ -1,9 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const level = require('level');
 const inquirer = require('inquirer');
+const Database = require('better-sqlite3');
 
-let db = level('db');
+const db = new Database('data.db');
+
+/*let db = level('db');
 
 db.get('bot.token', function (err) {
     if (err) {
@@ -15,7 +17,22 @@ db.get('bot.token', function (err) {
         const client = new Client(db);
         client.runVixen();
     }
-});
+});*/
+
+try {
+    db.prepare('create table guilds (uid text, name text)').run();
+    db.prepare('create table vixen (id text, value text)').run();
+} catch (err) {
+}
+
+const getToken = db.prepare('select * from vixen where id=?').get('disc_token');
+if (getToken) {
+    const Client = require('./src/client');
+    const client = new Client(db);
+    client.runVixen();
+} else {
+    runSetup();
+}
 
 if (!fs.existsSync("./cache")) {
     fs.mkdirSync("./cache");
@@ -48,7 +65,7 @@ function runSetup() {
     ];
 
     inquirer.prompt(questions).then(answers => {
-        db.put("bot.token", answers.bot.token, function (err) {
+        /*db.put("bot.token", answers.bot.token, function (err) {
             if (err) return console.log('Ooops!', err);
             db.put("bot.prefix", answers.bot.prefix, function (err) {
                 if (err) return console.log('Ooops!', err);
@@ -60,6 +77,14 @@ function runSetup() {
                     client.runVixen();
                 })
             });
-        });
+        });*/
+        const insert = db.prepare('insert into vixen (id, value) values (?, ?)');
+        insert.run('disc_token', answers.bot.token);
+        insert.run('prefix', answers.bot.prefix);
+        insert.run('owner', answers.bot.owner);
+        console.log("First-time setup completed! Vixen is now ready to be used.");
+        const Client = require('./src/client');
+        const client = new Client(db);
+        client.runVixen();
     });
 }

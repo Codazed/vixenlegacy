@@ -202,3 +202,4 @@ cache
 db
 data
 .idea
+/data.db

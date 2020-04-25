@@ -25,58 +25,63 @@ class Vixen {
     start() {
         let vixen = this;
         botLoadingSpinner.start();
-        configureVixen(vixen, () => {
-            bot = new Commando.Client({
-                owner: vixen.config.owner,
-                commandPrefix: vixen.config.prefix
-            });
+        configureVixen(vixen);
+        bot = new Commando.Client({
+            owner: vixen.config.owner,
+            commandPrefix: vixen.config.prefix
+        });
 
-            bot.registry.registerGroups([
-                ['music', 'Music commands'],
-                ['moderation', 'Moderation commands'],
-                ['admin', 'Bot administration commands']
-            ])
-                .registerDefaults()
-                .registerCommandsIn(path.join(__dirname, 'commands'));
-            bot.playQueue = [];
-            bot.loopEnabled = false;
-            bot.login(vixen.config.token);
-            bot.on('ready', () => {
-                vixen.audioController = new AudioController(vixen, bot);
-                bot.vixen = this;
-                botLoadingSpinner.stop();
-                vixen.log('Logged in', 'info');
-                bot.guilds.cache.forEach(function (guild) {
-                    if (!fs.existsSync(`./data/${guild.id}`)) {
-                        fs.mkdirSync(`./data/${guild.id}`);
-                    }
-                    vixen.db.get(`${guild.id}.loadingEmoji`, function (err, value) {
-                        if (err) console.log(err);
-                        if (guild.emojis.cache.get(value) === undefined) {
-                            vixen.log(`Loading emoji is incorrect or does not exist on guildID ${guild.id}. Creating it...`, 'warn');
-                            guild.emojis.create('./assets/loading.gif', 'vixenLoading')
-                                .then(emoji => {
-                                    vixen.db.put(`${guild.id}.loadingEmoji`, emoji.id);
-                                    vixen.loadingEmojis.set(`${guild.id}`, guild.emojis.cache.get(emoji.id));
-                                })
-                                .catch(console.error);
-                        } else {
-                            vixen.loadingEmojis.set(`${guild.id}`, guild.emojis.cache.get(value));
-                        }
-                    });
-                });
-            });
-
-            bot.on('message', (msg) => {
-                if (msg.mentions.users.has(bot.user.id)) {
-                    msg.react(require('random-item')(['😄', '🤗', '😊', '🙃', '🦊']));
+        bot.registry.registerGroups([
+            ['music', 'Music commands'],
+            ['moderation', 'Moderation commands'],
+            ['admin', 'Bot administration commands']
+        ])
+            .registerDefaults()
+            .registerCommandsIn(path.join(__dirname, 'commands'));
+        bot.playQueue = [];
+        bot.loopEnabled = false;
+        bot.login(vixen.config.token);
+        bot.on('ready', () => {
+            vixen.audioController = new AudioController(vixen, bot);
+            bot.vixen = this;
+            botLoadingSpinner.stop();
+            vixen.log('Logged in', 'info');
+            bot.guilds.cache.forEach(function (guild) {
+                if (!fs.existsSync(`./data/${guild.id}`)) {
+                    fs.mkdirSync(`./data/${guild.id}`);
+                }
+                try {
+                    vixen.db.prepare(`create table '${guild.id}' (id text, value text)`).run();
+                } catch (err){}
+                let guildInfo = vixen.db.prepare('select * from guilds where uid=?').get(guild.id);
+                if (!guildInfo) {
+                    vixen.db.prepare('insert into guilds (uid, name) values (?, ?)').run(guild.id, guild.name);
+                }
+                let guildEmoji = vixen.db.prepare(`select * from '${guild.id}' where id=?`).get('loadingEmoji');
+                if (guildEmoji) {
+                    vixen.loadingEmojis.set(`${guild.id}`, guild.emojis.cache.get(guildEmoji.value));
+                } else {
+                    vixen.log(`Loading emoji is incorrect or does not exist on guildID ${guild.id}. Creating it...`, 'warn');
+                    guild.emojis.create('./assets/loading.gif', 'vixenLoading')
+                        .then(emoji => {
+                            //vixen.db.put(`${guild.id}.loadingEmoji`, emoji.id);
+                            vixen.db.prepare(`insert into '${guild.id}' (id, value) values ('loadingEmoji', ?)`).run(emoji.id);
+                            vixen.loadingEmojis.set(`${guild.id}`, guild.emojis.cache.get(emoji.id));
+                        })
+                        .catch(console.error);
                 }
             });
-
-            bot.on('commandError', (command, error) => {
-                console.log(error);
-            })
         });
+
+        bot.on('message', (msg) => {
+            if (msg.mentions.users.has(bot.user.id)) {
+                msg.react(require('random-item')(['😄', '🤗', '😊', '🙃', '🦊']));
+            }
+        });
+
+        bot.on('commandError', (command, error) => {
+            console.log(error);
+        })
 
         // Graceful exit
         let death = require('death');
@@ -92,17 +97,11 @@ class Vixen {
     }
 }
 
-function configureVixen(vixen, callback) {
-    vixen.db.get('bot.token', (err, value) => {
-        vixen.config.token = value;
-        vixen.db.get('bot.prefix', (err, value) => {
-            vixen.config.prefix = value;
-            vixen.db.get('bot.owner', (err, value) => {
-                vixen.config.owner = value;
-                callback();
-            });
-        });
-    });
+function configureVixen(vixen) {
+    const fetch = vixen.db.prepare('select * from vixen where id=?');
+    vixen.config.token = fetch.get('disc_token').value;
+    vixen.config.prefix = fetch.get('prefix').value;
+    vixen.config.owner = fetch.get('owner').value;
 }
 
 module.exports = Vixen;
