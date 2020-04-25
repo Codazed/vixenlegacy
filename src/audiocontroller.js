@@ -5,7 +5,8 @@ let client;
 let guildsMap = new Map();
 
 const config = {
-    maxDuration: 900
+    maxDuration: 900,
+    defaultVolume: 0.35
 };
 
 class AudioController {
@@ -13,6 +14,10 @@ class AudioController {
         this.vixen = vixen;
         client = bot;
         cleanGuildData();
+    }
+
+    getSettings(guildId) {
+        return getGuildAudioSettings(guildId);
     }
 
     getQueueDuration(guildId) {
@@ -29,6 +34,12 @@ class AudioController {
 
     getQueue(guildId) {
         return getCurrentGuildData(guildId).playQueue;
+    }
+
+    setVolume(guildId, volumeLevel) {
+        let guildData = getCurrentGuildData(guildId);
+        guildData.audioPlayer.setVolume(volumeLevel);
+        setGuildAudioSetting(guildId, 'volume', volumeLevel);
     }
 
     queue(guildId, audioJSON) {
@@ -68,12 +79,13 @@ class AudioController {
             } else queue();
         } else {
             if (audioJSON.vc !== undefined) {
+                let streamOptions = getGuildAudioSettings(guildId);
                 audioJSON.vc.join().then(connection => {
                     connection.voice.setSelfDeaf(true);
                     if (audioJSON.source === 'File') {
-                        guildData.audioPlayer = connection.play(`./cache/${audioJSON.filename}`);
+                        guildData.audioPlayer = connection.play(`./cache/${audioJSON.filename}`, streamOptions);
                     } else {
-                        guildData.audioPlayer = connection.play(`./cache/${audioJSON.id}.ogg`);
+                        guildData.audioPlayer = connection.play(`./cache/${audioJSON.id}.ogg`, streamOptions);
                     }
                     guildData.nowPlaying = audioJSON;
                     guildData.startTime = Date.now();
@@ -152,6 +164,26 @@ class AudioController {
             }
             getInfoSpinner.stop();
         });
+    }
+}
+
+function getGuildAudioSettings(guildId) {
+    const query = client.vixen.db.prepare(`select * from '${guildId}' where id=?`);
+    let settings = {};
+    if (query.get('volume')) {
+        settings.volume = query.get('volume').value;
+    } else {
+        settings.volume = config.defaultVolume;
+    }
+    return settings;
+}
+
+function setGuildAudioSetting(guildId, name, val) {
+    let query;
+    if (client.vixen.db.prepare(`select * from '${guildId}' where id=?`).get(name)) {
+        query = client.vixen.db.prepare(`update '${guildId}' set value=? where id=?`).run(val, name);
+    } else {
+        query = client.vixen.db.prepare(`insert into '${guildId}' (id, value) values (?, ?)`).run(name, val);
     }
 }
 
