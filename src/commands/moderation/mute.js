@@ -52,29 +52,6 @@ module.exports = class LoopCommand extends commando.Command {
 
             let currentTime = moment();
             let muteEndTime = moment().add(timeAmount, timeType);
-            // switch (timeType) {
-            //     case 'seconds':
-            //         muteEndTime = currentTime + timeAmount*1000;
-            //         break;
-            //     case 'minutes':
-            //         muteEndTime = currentTime + timeAmount*60000;
-            //         break;
-            //     case 'hours':
-            //         muteEndTime = currentTime + timeAmount*3600000;
-            //         break;
-            //     case 'days':
-            //         muteEndTime = currentTime + timeAmount*86400000;
-            //         break;
-            //     case 'weeks':
-            //         muteEndTime = currentTime + timeAmount*604800000;
-            //         break;
-            //     case 'months':
-            //         muteEndTime = currentTime + timeAmount*2592000000;
-            //         break;
-            //     case 'years':
-            //         muteEndTime = currentTime + timeAmount*31536000000;
-            //         break;
-            // }
             let muted = botclient.vixen.db.prepare(`select * from muted where id=? and guild=?`).get(user.id, msg.guild.id);
             if (muted) {
                 await msg.channel.send(`That user is already muted. The mute will expire ${moment.unix(muted.muteTimeEnd).fromNow()}.`);
