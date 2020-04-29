@@ -52,8 +52,10 @@ class Vixen {
                     fs.mkdirSync(`./data/${guild.id}`);
                 }
                 try {
-                    vixen.db.prepare(`create table muted (id text, name text, guild text, guildName text, muteTimeStart text, muteTimeEnd text)`).run();
                     vixen.db.prepare(`create table '${guild.id}' (id text, value text)`).run();
+                } catch (err){}
+                try {
+                    vixen.db.prepare(`create table muted (id text, name text, guild text, guildName text, muteTimeStart text, muteTimeEnd text)`).run();
                 } catch (err){}
                 let guildInfo = vixen.db.prepare('select * from guilds where uid=?').get(guild.id);
                 if (!guildInfo) {
