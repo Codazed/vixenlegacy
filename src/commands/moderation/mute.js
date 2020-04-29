@@ -3,7 +3,7 @@ const commando = require('discord.js-commando');
 let botclient;
 let timeTypes = ['seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years'];
 
-module.exports = class LoopCommand extends commando.Command {
+module.exports = class MuteCommand extends commando.Command {
     constructor(client) {
         super (client, {
             name: 'mute',
