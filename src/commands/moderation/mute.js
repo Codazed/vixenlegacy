@@ -1,7 +1,7 @@
 const commando = require('discord.js-commando');
 
 let botclient;
-let timeTypes = ['seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years'];
+let timeTypes = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year', 'seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years'];
 
 module.exports = class MuteCommand extends commando.Command {
     constructor(client) {
@@ -52,17 +52,23 @@ module.exports = class MuteCommand extends commando.Command {
 
             let currentTime = moment();
             let muteEndTime = moment().add(timeAmount, timeType);
-            let muted = botclient.vixen.db.prepare(`select * from muted where id=? and guild=?`).get(user.id, msg.guild.id);
-            if (muted) {
-                await msg.channel.send(`That user is already muted. The mute will expire ${moment.unix(muted.muteTimeEnd).fromNow()}.`);
-
+            if (user === null) {
+                await msg.channel.send(`That user isn't a member of this server, or the command syntax is incorrect. The correct syntax is \`${botclient.commandPrefix}mute <@user or user id> <amount of time> <seconds, minutes, hours, etc.>\``);
             } else {
-                botclient.vixen.db.prepare(`insert into muted (id, name, guild, guildName, muteTimeStart, muteTimeEnd) values (?, ?, ?, ?, ?, ?)`).run(user.id, user.user.username, msg.guild.id, msg.guild.name, currentTime.unix(), muteEndTime.unix());
-                await msg.channel.send(`Muted user ${user.displayName} until ${moment.unix(muteEndTime.unix()).calendar()}.`);
+                let muted = botclient.vixen.db.prepare(`select * from muted where id=? and guild=?`).get(user.id, msg.guild.id);
+                if (muted) {
+                    let nickname = '';
+                    if (user.nickname !== null) nickname = `Nickname: ${user.nickname}, `;
+                    await msg.channel.send(`User \`${user.user.tag} (${nickname}ID: ${user.id})\` is already muted. The mute will expire ${moment.unix(muted.muteTimeEnd).fromNow()}.`);
+                } else {
+                    botclient.vixen.db.prepare(`insert into muted (id, name, guild, guildName, muteTimeStart, muteTimeEnd) values (?, ?, ?, ?, ?, ?)`).run(user.id, user.user.username, msg.guild.id, msg.guild.name, currentTime.unix(), muteEndTime.unix());
+                    let nickname = '';
+                    if (user.nickname !== null) nickname = `Nickname: ${user.nickname}, `;
+                    await msg.channel.send(`Muted user \`${user.user.tag} (${nickname}ID: ${user.id})\` until ${moment.unix(muteEndTime.unix()).calendar()}.`);
+                    await user.roles.add(muteRole);
+                    await user.voice.kick('User has been muted.');
+                }
             }
-
-            await user.roles.add(muteRole);
-            await user.voice.kick('User has been muted.');
         }
     }
 };
