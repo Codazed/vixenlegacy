@@ -257,11 +257,7 @@ function sendQueueEmbed(data) {
     } else {
         embed.setTitle(data.source);
     }
-    if (data.requester.nickname !== null && data.requester.nickname !== undefined) {
-        embed.setDescription(`${data.requester.nickname} added a video to the queue`);
-    } else {
-        embed.setDescription(`${data.requester.user.username} added a video to the queue`);
-    }
+    embed.setDescription(`${data.requester.displayName} added a video to the queue`);
     embed.setThumbnail(data.thumbnail);
     embed.addField('Video', data.title);
     embed.addField('Uploader', data.uploader, true);
@@ -280,11 +276,7 @@ function sendNPEmbed(data) {
     } else {
         embed.setTitle(data.source);
     }
-    if (data.requester.nickname !== null && data.requester.nickname !== undefined) {
-        embed.setDescription(`Playing video requested by ${data.requester.nickname}`);
-    } else {
-        embed.setDescription(`Playing video requested by ${data.requester.user.username}`);
-    }
+    embed.setDescription(`Playing video requested by ${data.requester.displayName}`);
     embed.setThumbnail(data.requester.user.avatarURL());
     embed.addField('Video', data.title);
     embed.addField('Uploader', data.uploader, true);

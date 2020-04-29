@@ -70,11 +70,7 @@ module.exports = class QueueCommand extends commando.Command {
             let page = 1;
             let index = 1;
             queue.forEach(video => {
-                if (video.requester.nickname !== null && video.requester.nickname !== undefined) {
-                    data.push([index, video.title, dur(video.duration*1000), video.requester.nickname, dur(timeTil)]);
-                } else {
-                    data.push([index, video.title, dur(video.duration*1000), video.requester.user.username, dur(timeTil)]);
-                }
+                data.push([index, video.title, dur(video.duration*1000), video.requester.displayName, dur(timeTil)]);
                 index++;
                 if (`Queue page ${page}\`\`\`${table(data, tableCfg)}\`\`\``.length >= 2000) {
                     let overflow = data.pop();
