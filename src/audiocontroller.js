@@ -199,7 +199,7 @@ function download(data, callback) {
     } else {
         const downloadVideoSpinner = require('ora')(`Downloading '${data.title}'`).start();
         const youtubedl = require('youtube-dl');
-        youtubedl.exec(data.url, ['--format', 'bestaudio', '-x', '--audio-format', 'vorbis', '--audio-quality', '64K', '-o', './cache/%(id)s.unprocessed'], {}, function(err, output) {
+        youtubedl.exec(data.url, ['--format', 'bestaudio', '-x', '--audio-format', 'vorbis', '--audio-quality', '64K', '-o', './cache/%(id)s.unprocessed', '--rm-cache-dir'], {}, function(err, output) {
             if (err) throw err;
             downloadVideoSpinner.stop();
             callback();
