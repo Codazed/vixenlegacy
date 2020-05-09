@@ -65,6 +65,7 @@ module.exports = class MuteCommand extends commando.Command {
                     let nickname = '';
                     if (user.nickname !== null) nickname = `Nickname: ${user.nickname}, `;
                     await msg.channel.send(`Muted user \`${user.user.tag} (${nickname}ID: ${user.id})\` until ${moment.unix(muteEndTime.unix()).calendar()}.`);
+                    await user.user.send(`Whoop! Someone didn't follow the rules on ${user.guild.name}! You have been muted on it until ${moment.unix(muteEndTime.unix()).format("DD/MM/YYYY HH:mm [UTC]")}`);
                     await user.roles.add(muteRole);
                     await user.voice.kick('User has been muted.');
                 }

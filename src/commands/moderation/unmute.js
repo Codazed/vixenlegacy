@@ -28,6 +28,7 @@ module.exports = class UnmuteCommand extends commando.Command {
                 botclient.vixen.db.prepare(`delete from muted where id=? and guild=?`).run(user.id, msg.guild.id);
                 let nickname = '';
                 if (user.nickname !== null) nickname = `Nickname: ${user.nickname}, `;
+                await user.user.send(`You are no longer muted on ${user.guild.name}. Remember to follow the rules!`);
                 await msg.channel.send(`User \`${user.user.tag} (${nickname}ID: ${user.id})\` manually unmuted.`);
             } else {
                 let nickname = '';

@@ -109,6 +109,7 @@ class Vixen {
                     let guild = bot.guilds.resolve(person.guild);
                     let muteRole = vixen.db.prepare(`select * from '${guild.id}' where id='muteRole'`).get().value;
                     guild.member(person.id).roles.remove(muteRole, 'User mute time expired.');
+                    guild.member(person.id).user.send(`You are no longer muted on ${guild.name}. Remember to follow the rules!`);
                     vixen.db.prepare(`delete from muted where id=? and guild=?`).run(person.id, guild.id);
                 }
             })
