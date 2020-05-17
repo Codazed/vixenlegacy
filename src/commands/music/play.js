@@ -30,10 +30,17 @@ module.exports = class PlayCommand extends commando.Command {
         vixen = botclient.vixen;
         if (msg.attachments.size > 0) {
             let attachment = msg.attachments.first();
-            if (attachment.name.endsWith('.mp3') || attachment.name.endsWith('.wav') || attachment.name.endsWith('.ogg')) {
+            if (attachment.name.endsWith('.mp3') || attachment.name.endsWith('.wav') || attachment.name.endsWith('.ogg') || attachment.name.endsWith('.flac')) {
+                let loadMsg;
+                msg.channel.send(`${vixen.loadingEmojis.get(msg.guild.id)} Downloading uploaded audio...`).then(msg => {
+                    loadMsg = msg;
+                });
+                const downloadSpinner = ora(`Downloading '${attachment.url}'...`).start();
                 require('download')(attachment.url, './cache').then(() => {
                     require('music-metadata').parseFile(`./cache/${attachment.name}`)
                         .then(metadata => {
+                            downloadSpinner.stop();
+                            loadMsg.delete();
                             let data = {
                                 'query': 'file',
                                 'title': metadata.common.title,
@@ -51,7 +58,7 @@ module.exports = class PlayCommand extends commando.Command {
                         });
                 })
             } else {
-                await msg.channel.send('Sorry, I can only play mp3, wav, and ogg files right now.');
+                await msg.channel.send('Sorry, I can only play mp3, wav, flac, and ogg files right now.');
             }
         } else {
             let loadMsg;

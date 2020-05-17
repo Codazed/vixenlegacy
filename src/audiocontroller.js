@@ -1,5 +1,6 @@
 const youtubedl = require('youtube-dl');
 const ora = require('ora');
+const fs = require('fs');
 
 let client;
 let guildsMap = new Map();
@@ -92,13 +93,14 @@ class AudioController {
                     sendNPEmbed(audioJSON);
                     guildData.audioPlaying = true;
                     guildData.audioPlayer.on('finish', () => {
+                        guildData.previousSong = guildData.nowPlaying;
                         guildData.nowPlaying = undefined;
                         guildData.startTime = undefined;
                         if (guildData.loopEnabled) {
                             this.play(guildId, audioJSON);
                         } else {
-                            if (guildData.source === 'File') {
-                                fs.unlinkSync(`./cache/${audioJSON.filename}`);
+                            if (guildData.previousSong.source === 'File') {
+                                fs.unlinkSync(`./cache/${guildData.previousSong.filename}`);
                             }
                             if (guildData.playQueue.length <= 0) {
                                 audioJSON.responsechnl.send("Queue is empty. Disconnecting.").then(() => audioJSON.vc.leave());
