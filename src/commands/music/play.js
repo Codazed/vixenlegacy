@@ -28,7 +28,9 @@ module.exports = class PlayCommand extends commando.Command {
     async run(msg, args) {
         controller = botclient.vixen.audioController;
         vixen = botclient.vixen;
-        if (msg.attachments.size > 0) {
+        if (!msg.member.voice.channel) {
+            await msg.reply('You need to be in a voice channel to do that.');
+        } else if (msg.attachments.size > 0) {
             let attachment = msg.attachments.first();
             if (attachment.name.endsWith('.mp3') || attachment.name.endsWith('.wav') || attachment.name.endsWith('.ogg') || attachment.name.endsWith('.flac')) {
                 let loadMsg;
