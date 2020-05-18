@@ -4,7 +4,7 @@ module.exports = class StopCommand extends commando.Command {
     constructor(client) {
         super (client, {
             name: 'stop',
-            aliases: ['stop'],
+            aliases: ['stop', 'stahp'],
             group: 'music',
             memberName: 'stop',
             description: 'Stop music',
