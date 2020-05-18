@@ -2,6 +2,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.1.0",
     "@types/better-sqlite3": "^5.4.0",
+    "archiver": "^4.0.1",
     "better-sqlite3": "^6.0.1",
     "bufferutil": "^4.0.1",
     "cacache": "^13.0.1",
