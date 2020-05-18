@@ -17,6 +17,7 @@ class Vixen {
             'owner': ''
         };
         this.loadingEmojis = new Map();
+        this.recordings = new Map();
     }
 
     getAudioController() {
@@ -35,7 +36,8 @@ class Vixen {
         bot.registry.registerGroups([
             ['music', 'Music commands'],
             ['moderation', 'Moderation commands'],
-            ['admin', 'Bot administration commands']
+            ['admin', 'Bot administration commands'],
+            ['podcasting', 'Podcasting commands']
         ])
             .registerDefaults()
             .registerCommandsIn(path.join(__dirname, 'commands'));
